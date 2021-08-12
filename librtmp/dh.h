@@ -166,6 +166,36 @@ static int MDH_compute_key(uint8_t *secret, size_t len, MP_t pub, MDH *dh)
 #else /* USE_OPENSSL */
 #include <openssl/bn.h>
 #include <openssl/dh.h>
+#include <internal/refcount.h>
+//#include <crypto\dh\dh_locl.h>
+
+typedef struct _MDH {
+	/*
+	* This first argument is used to pick up errors when a DH is passed
+	* instead of a EVP_PKEY
+	*/
+	int pad;
+	int version;
+	BIGNUM *p;
+	BIGNUM *g;
+	int32_t length;             /* optional */
+	BIGNUM *pub_key;            /* g^x % p */
+	BIGNUM *priv_key;           /* x */
+	int flags;
+	BN_MONT_CTX *method_mont_p;
+	/* Place holders if we want to do X9.42 DH */
+	BIGNUM *q;
+	BIGNUM *j;
+	unsigned char *seed;
+	int seedlen;
+	BIGNUM *counter;
+	CRYPTO_REF_COUNT references;
+	CRYPTO_EX_DATA ex_data;
+	const DH_METHOD *meth;
+	ENGINE *engine;
+	CRYPTO_RWLOCK *lock;
+}MDH;
+
 
 typedef BIGNUM * MP_t;
 #define MP_new(m)	m = BN_new()
@@ -181,7 +211,7 @@ typedef BIGNUM * MP_t;
 #define MP_setbin(u,buf,len)	BN_bn2bin(u,buf)
 #define MP_getbin(u,buf,len)	u = BN_bin2bn(buf,len,0)
 
-#define MDH	DH
+//#define MDH	DH
 #define MDH_new()	DH_new()
 #define MDH_free(dh)	DH_free(dh)
 #define MDH_generate_key(dh)	DH_generate_key(dh)
