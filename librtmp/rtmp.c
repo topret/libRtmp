@@ -32,6 +32,10 @@
 #include "rtmp_sys.h"
 #include "log.h"
 
+
+#define RTMP_SIG_SIZE 1536
+#define RTMP_LARGE_HEADER_SIZE 12
+
 #ifdef CRYPTO
 #ifdef USE_POLARSSL
 #include <polarssl/havege.h>
@@ -143,6 +147,8 @@ static void CloseInternal(RTMP *r, int reconnect);
 
 #ifndef _WIN32
 static int clk_tck;
+#else
+#include <wchar.h>
 #endif
 
 #ifdef CRYPTO
@@ -1380,8 +1386,8 @@ RTMP_ClientPacket(RTMP *r, RTMPPacket *packet)
 }
 
 #ifdef _DEBUG
-extern FILE *netstackdump;
-extern FILE *netstackdump_read;
+//extern FILE *netstackdump;
+//extern FILE *netstackdump_read;
 #endif
 
 static int
@@ -1468,7 +1474,7 @@ ReadN(RTMP *r, char *buffer, int n)
 	}
       /*RTMP_Log(RTMP_LOGDEBUG, "%s: %d bytes\n", __FUNCTION__, nBytes); */
 #ifdef _DEBUG
-      fwrite(ptr, 1, nBytes, netstackdump_read);
+      //fwrite(ptr, 1, nBytes, netstackdump_read);
 #endif
 
       if (nBytes == 0)
@@ -4297,7 +4303,7 @@ RTMPSockBuf_Send(RTMPSockBuf *sb, const char *buf, int len)
   int rc;
 
 #ifdef _DEBUG
-  fwrite(buf, 1, len, netstackdump);
+  //fwrite(buf, 1, len, netstackdump);
 #endif
 
 #if defined(CRYPTO) && !defined(NO_SSL)

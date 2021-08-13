@@ -147,8 +147,8 @@ uint32_t debugTS = 0;
 
 int pnum = 0;
 
-FILE *netstackdump = NULL;
-FILE *netstackdump_read = NULL;
+//FILE *netstackdump = NULL;
+//FILE *netstackdump_read = NULL;
 #endif
 
 #define SAVC(x) static const AVal av_##x = AVC(#x)
@@ -1088,7 +1088,7 @@ main(int argc, char **argv)
   RTMP_LogPrintf("RTMP Server %s\n", RTMP_LIB_VERSION);
   RTMP_LogPrintf("(c) 2010 Andrej Stepanchuk, Howard Chu; license: GPL\n\n");
 
-  RTMP_debuglevel = RTMP_LOGINFO;
+  RTMP_debuglevel = RTMP_LOGDEBUG;
 
   for (i = 1; i < argc; i++)
     {
