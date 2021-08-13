@@ -66,9 +66,6 @@ static const char *my_dhm_G = "4";
 TLS_CTX RTMP_TLS_ctx;
 #endif
 
-#define RTMP_SIG_SIZE 1536
-#define RTMP_LARGE_HEADER_SIZE 12
-
 static const int packetSize[] = { 12, 8, 4, 1 };
 
 int RTMP_ctrlC;
@@ -158,6 +155,7 @@ RTMP_GetTime()
 #ifdef _DEBUG
   return 0;
 #elif defined(_WIN32)
+#pragma comment(lib,"winmm.lib")
   return timeGetTime();
 #else
   struct tms t;

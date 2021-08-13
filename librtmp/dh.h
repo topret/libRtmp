@@ -213,9 +213,9 @@ typedef BIGNUM * MP_t;
 
 //#define MDH	DH
 #define MDH_new()	DH_new()
-#define MDH_free(dh)	DH_free(dh)
-#define MDH_generate_key(dh)	DH_generate_key(dh)
-#define MDH_compute_key(secret, seclen, pub, dh)	DH_compute_key(secret, pub, dh)
+#define MDH_free(dh)	DH_free((DH *)dh)
+#define MDH_generate_key(dh)	DH_generate_key((DH *)dh)
+#define MDH_compute_key(secret, seclen, pub, dh)	DH_compute_key(secret, pub, (DH *)dh)
 
 #endif
 
@@ -278,7 +278,7 @@ static MDH *
 DHInit(int nKeyBits)
 {
   size_t res;
-  MDH *dh = MDH_new();
+  MDH *dh = (MDH*)MDH_new();
 
   if (!dh)
     goto failed;

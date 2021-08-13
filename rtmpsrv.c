@@ -30,7 +30,7 @@
 #include <limits.h>
 
 #include <signal.h>
-#include <getopt.h>
+//#include <getopt.h>
 
 #include <assert.h>
 
@@ -43,7 +43,7 @@
 #include <linux/netfilter_ipv4.h>
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <sys/types.h>
 #include <sys/wait.h>
 #endif
@@ -54,7 +54,14 @@
 
 #define PACKET_SIZE 1024*1024
 
-#ifdef WIN32
+#ifdef _WIN32
+#pragma comment(lib,"WS2_32.lib")
+#pragma comment(lib,"crypt32.lib")
+#pragma comment(lib,"libcrypto.lib")
+#pragma comment(lib,"libssl.lib")
+#pragma comment(lib,"zlib.lib")
+#pragma comment(lib,"librtmp.lib")
+
 #define InitSockets()	{\
 	WORD version;			\
 	WSADATA wsaData;		\
@@ -1078,7 +1085,7 @@ main(int argc, char **argv)
   int nRtmpStreamingPort = 1935;	// port
   char *cert = NULL, *key = NULL;
 
-  RTMP_LogPrintf("RTMP Server %s\n", RTMPDUMP_VERSION);
+  RTMP_LogPrintf("RTMP Server %s\n", RTMP_LIB_VERSION);
   RTMP_LogPrintf("(c) 2010 Andrej Stepanchuk, Howard Chu; license: GPL\n\n");
 
   RTMP_debuglevel = RTMP_LOGINFO;

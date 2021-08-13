@@ -24,6 +24,10 @@
 
 /* This file is #included in rtmp.c, it is not meant to be compiled alone */
 
+
+#define RTMP_SIG_SIZE 1536
+#define RTMP_LARGE_HEADER_SIZE 12
+
 #ifdef USE_POLARSSL
 #include <polarssl/sha2.h>
 #include <polarssl/arc4.h>
@@ -69,9 +73,10 @@ typedef struct arcfour_ctx*	RC4_handle;
 #if OPENSSL_VERSION_NUMBER < 0x0090800 || !defined(SHA256_DIGEST_LENGTH)
 #error Your OpenSSL is too old, need 0.9.8 or newer with SHA256
 #endif
-#define HMAC_setup(ctx, key, len)	HMAC_CTX_init((EVP_MD_CTX*)ctx); HMAC_Init_ex((EVP_MD_CTX*)ctx, key, len, EVP_sha256(), 0)
-#define HMAC_crunch(ctx, buf, len)	HMAC_Update((EVP_MD_CTX*)ctx, buf, len)
-#define HMAC_finish(ctx, dig, dlen)	HMAC_Final((EVP_MD_CTX*)ctx, dig, &dlen); HMAC_CTX_free((EVP_MD_CTX*)ctx)
+#define HMAC_setup(ctx, key, len)	HMAC_Init_ex((HMAC_CTX*)ctx, key, len, EVP_sha256(), 0)
+#define HMAC_crunch(ctx, buf, len)	HMAC_Update((HMAC_CTX*)ctx, buf, len)
+#define HMAC_finish(ctx, dig, dlen)	HMAC_Final((HMAC_CTX*)ctx, dig, &dlen); HMAC_CTX_free((HMAC_CTX*)ctx)
+#define HMAC_close(ctx)	HMAC_CTX_reset((HMAC_CTX*)ctx); HMAC_CTX_free((HMAC_CTX*)ctx)
 
 typedef RC4_KEY *	RC4_handle;
 #define RC4_alloc(h)	*h = malloc(sizeof(RC4_KEY))
@@ -117,7 +122,11 @@ static void InitRC4Encryption
 {
   uint8_t digest[SHA256_DIGEST_LENGTH];
   unsigned int digestLen = 0;
-  HMAC_CTX *ctx;
+  HMAC_CTX *ctx = NULL;
+
+  if ((ctx = HMAC_CTX_new()) == NULL) {
+	  return;
+  }
 
   RC4_alloc(rc4keyIn);
   RC4_alloc(rc4keyOut);
@@ -266,8 +275,10 @@ HMACsha256(const uint8_t *message, size_t messageLen, const uint8_t *key,
 	   size_t keylen, uint8_t *digest)
 {
   unsigned int digestLen;
-  HMAC_CTX *ctx;
-
+  HMAC_CTX *ctx = NULL;
+  if ((ctx = HMAC_CTX_new()) == NULL) {
+	  return;
+  }
   HMAC_setup(ctx, key, keylen);
   HMAC_crunch(ctx, message, messageLen);
   HMAC_finish(ctx, digest, digestLen);
